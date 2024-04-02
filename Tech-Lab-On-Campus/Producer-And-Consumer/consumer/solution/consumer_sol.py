@@ -14,15 +14,19 @@ class mqConsumer(mqConsumerInterface):
     def setupRMQConnection(self) -> None:
         con_params = pika.URLParameters(os.environ["AMQP_URL"])
         self.connection = pika.BlockingConnection(parameters=con_params)
-        self.channel = connection.channel()
+
+        self.channel = self.connection.channel()
+
         self.channel.queue_declare(queue=self.queue_name)
-        self.exchange = channel.exchange_declare(exchange=self.exchange_name)
+
+        self.exchange = self.channel.exchange_declare(exchange=self.exchange_name)
 
         self.channel.queue_bind(
-        queue= self.queue_name,
-        routing_key= self.routing_key,
-        exchange=self.exchange_name,
+            queue= self.queue_name,
+            routing_key= self.binding_key,
+            exchange=self.exchange_name,
     )
+        
         self.channel.basic_consume(
         self.queue_name, self.on_message_callback, auto_ack=False
     )
@@ -30,8 +34,9 @@ class mqConsumer(mqConsumerInterface):
     def on_message_callback(
         self, channel, method_frame, header_frame, body
     ) -> None:
-        self.channel.basic_ack(method_frame.delivery_tag, False)
-        print("Hihihi")   
+        channel.basic_ack(method_frame.delivery_tag, False)
+
+        print(body)   
 
     def startConsuming(self) -> None:
         print("[*] Waiting for messages. To exit press CTRL+C")
