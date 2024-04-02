@@ -29,7 +29,7 @@ class mqConsumer(mqConsumerInterface):
         self, channel, method_frame, header_frame, body
     ) -> None:
         channel.basic_ack(method_frame.delivery_tag, False)
-        print("Hihihi")
+        print("Hihihi")   
 
     def startConsuming(self) -> None:
         print("[*] Waiting for messages. To exit press CTRL+C")
